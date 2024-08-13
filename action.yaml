@@ -34,25 +34,26 @@ runs:
 
     - name: Get Current Version
       shell: bash
+      id: current_pom_version
       run: |
-         echo "POM_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+         echo "POM_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
 
     - name: Print Version
       shell: bash
-      run: echo ${{env.POM_VERSION}}
+      run: echo ${{steps.current_pom_version.outputs.POM_VERSION}}
 
     - name: Verify Is SNAPSHOT Version
       shell: bash
-      if: ${{ !contains(env.POM_VERSION, '-SNAPSHOT')}}
+      if: ${{ !contains(steps.current_pom_version.outputs.POM_VERSION, '-SNAPSHOT')}}
       run: |
-        echo "ERROR: Version is set to incompatible version ${{env.POM_VERSION}}. Only SNAPSHOT development versions can be converted to a release version."
+        echo "ERROR: Version is set to incompatible version ${{steps.current_pom_version.outputs.POM_VERSION}}. Only SNAPSHOT development versions can be converted to a release version."
         exit 1
 
     - name: Split version code
       uses: xom9ikk/split@v1.1
       id: splitCurrentVersion
       with:
-        string: ${{env.POM_VERSION}}
+        string: ${{steps.current_pom_version.outputs.POM_VERSION}}
         separator: '-'
         limit: -1
 
@@ -141,7 +142,7 @@ runs:
       shell: bash
       run: |
         mvn clean install \
-          -s ${{env.MAVEN_SETTING}} \
+          -s ${{inputs.maven_settings}} \
           --batch-mode \
           -e \
           -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
