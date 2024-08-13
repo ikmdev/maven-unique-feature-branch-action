@@ -1,5 +1,5 @@
-name: Yarn Code Quality Build
-description: A composite action to build and execute code quality steps
+name: Maven Release Action
+description: Utilized for creating releases of projects
 
 # Inputs
 inputs:
