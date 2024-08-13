@@ -50,19 +50,20 @@ runs:
     - name: Set Release Version
       shell: bash
       run: |
-          mvn -B versions:set \
+          sudo -u ec2-user bash -c \
+          'mvn -B versions:set \
           -DnewVersion=${{inputs.release_version}} \
-          -DgenerateBackupPoms=false
+          -DgenerateBackupPoms=false'
 
     - name: Build Release Version
       shell: bash
       run: |
-           mvn -version
-           mvn clean install \
+           sudo -u ec2-user bash -c \
+           'mvn clean install \
                 --batch-mode \
                 -e \
                 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-                -PcodeQuality,release-enforcement
+                -PcodeQuality,release-enforcement'
 
     - name: Create tag
       shell: bash
@@ -78,9 +79,10 @@ runs:
     - name: Set Dev Version
       shell: bash
       run: |
-          mvn -B versions:set \
+          sudo -u ec2-user bash -c \
+          'mvn -B versions:set \
           -DnewVersion=${{inputs.next_snapshot_version}} \
-          -DgenerateBackupPoms=false
+          -DgenerateBackupPoms=false'
 
     - name: Commit & Push
       shell: bash
@@ -111,17 +113,19 @@ runs:
     - name: Maven Build
       shell: bash
       run: |
-        mvn clean install \
+        sudo -u ec2-user bash -c \
+        'mvn clean install \
           -s ${{inputs.maven_settings}} \
           --batch-mode \
           -e \
           -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-          -PcodeQuality
+          -PcodeQuality'
 
     - name: Deploy To Nexus
       shell: bash
       run: |
-        mvn deploy \
+       sudo -u ec2-user bash -c \
+        'mvn deploy \
               --batch-mode \
               -e \
               -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
@@ -131,13 +135,14 @@ runs:
               -Dmaven.test.skip \
               -s ${{inputs.maven_settings}} \
               -DrepositoryId='maven-releases' \
-              -Dgpg.passphrase=${{inputs.gpg_passphrase}}
+              -Dgpg.passphrase=${{inputs.gpg_passphrase}}'
 
 
     - name: Publish To OSSRH (Maven Central Staging)
       shell: bash
       run: |
-          mvn deploy \
+          sudo -u ec2-user bash -c \
+          'mvn deploy \
               --batch-mode \
               -e \
               -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
@@ -148,6 +153,6 @@ runs:
               -s ${{inputs.maven_settings}} \
               -DrepositoryId='maven-releases' \
               -DrepositoryIdOSSRH='true' \
-              -PstageOSSRH -Dgpg.passphrase=${{inputs.gpg_passphrase}}
+              -PstageOSSRH -Dgpg.passphrase=${{inputs.gpg_passphrase}}'
     
 
