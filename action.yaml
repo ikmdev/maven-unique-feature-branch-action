@@ -36,7 +36,8 @@ runs:
       shell: bash
       id: current_pom_version
       run: |
-         echo "POM_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >>"${GITHUB_OUTPUT}"
+          POM_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "::set-output name=version::$POM_VERSION"
 
     - name: Print Version
       shell: bash
@@ -69,7 +70,8 @@ runs:
       shell: bash
       id: nextSnapshotVersion
       run: |
-        echo "SnapshotVersion=${{steps.splitVersionMinor.outputs._0}}.$((${{steps.splitVersionMinor.outputs._1}} + 1)).${{steps.splitVersionMinor.outputs._2}}-SNAPSHOT" >> "${GITHUB_OUTPUT}"
+        SnapshotVersion=${{steps.splitVersionMinor.outputs._0}}.$((${{steps.splitVersionMinor.outputs._1}} + 1)).${{steps.splitVersionMinor.outputs._2}}-SNAPSHOT
+        echo "::set-output name=version::$SnapshotVersion"
 
     - name: Print Information
       shell: bash
