@@ -7,9 +7,6 @@ inputs:
     description: "Current Branch"
     required: true
     default: "main"
-  maven_settings:
-    description: "Maven Settings File"
-    default: '/home/ec2-user/maven/.m2/settings.xml'
   ikmdevops_pat:
     description: "PAT TOKEN for IKMDevops User"
     required: true
@@ -27,6 +24,12 @@ inputs:
     required: true
   release_version:
     description: "Current Release Version"
+    required: true
+  ossrh_username:
+    description: "OSSRH USERNAME"
+    required: true
+  ossrh_token:
+    description: "OSSRH Token"
     required: true
   
 
@@ -50,20 +53,18 @@ runs:
     - name: Set Release Version
       shell: bash
       run: |
-          sudo -u ec2-user bash -c \
-          'mvn -B versions:set \
+          ./mvnw -B versions:set \
           -DnewVersion=${{inputs.release_version}} \
-          -DgenerateBackupPoms=false'
+          -DgenerateBackupPoms=false
 
     - name: Build Release Version
       shell: bash
       run: |
-           sudo -u ec2-user bash -c \
-           'mvn clean install \
+           ./mvnw clean install \
                 --batch-mode \
                 -e \
                 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-                -PcodeQuality,release-enforcement'
+                -PcodeQuality,release-enforcement
 
     - name: Create tag
       shell: bash
@@ -79,10 +80,9 @@ runs:
     - name: Set Dev Version
       shell: bash
       run: |
-          sudo -u ec2-user bash -c \
-          'mvn -B versions:set \
+          ./mvnw -B versions:set \
           -DnewVersion=${{inputs.next_snapshot_version}} \
-          -DgenerateBackupPoms=false'
+          -DgenerateBackupPoms=false
 
     - name: Commit & Push
       shell: bash
@@ -109,40 +109,42 @@ runs:
       uses: actions/checkout@v4
       with:
         ref: ${{inputs.release_version}}
+        server-id: maven-releases
+        server-username: OSSRH_USERNAME
+        server-password: OSSRH_PASSWORD
 
     - name: Maven Build
       shell: bash
       run: |
-        sudo -u ec2-user bash -c \
-        'mvn clean install \
-          -s ${{inputs.maven_settings}} \
+        ./mvnw clean install \
           --batch-mode \
           -e \
           -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-          -PcodeQuality'
+          -PcodeQuality
 
-    - name: Deploy To Nexus
-      shell: bash
-      run: |
-       sudo -u ec2-user bash -c \
-        'mvn deploy \
-              --batch-mode \
-              -e \
-              -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-              -DskipTests \
-              -DskipITs \
-              -Dmaven.main.skip \
-              -Dmaven.test.skip \
-              -s ${{inputs.maven_settings}} \
-              -DrepositoryId='maven-releases' \
-              -Dgpg.passphrase=${{inputs.gpg_passphrase}}'
+    # - name: Deploy To Nexus
+    #   shell: bash
+    #   run: |
+    #    sudo -u ec2-user bash -c \
+    #     'mvn deploy \
+    #           --batch-mode \
+    #           -e \
+    #           -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
+    #           -DskipTests \
+    #           -DskipITs \
+    #           -Dmaven.main.skip \
+    #           -Dmaven.test.skip \
+    #           -s ${{inputs.maven_settings}} \
+    #           -DrepositoryId='maven-releases' \
+    #           -Dgpg.passphrase=${{inputs.gpg_passphrase}}'
+
+
 
 
     - name: Publish To OSSRH (Maven Central Staging)
       shell: bash
       run: |
-          sudo -u ec2-user bash -c \
-          'mvn deploy \
+          ./mvnw deploy \
               --batch-mode \
               -e \
               -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
@@ -150,9 +152,11 @@ runs:
               -DskipITs \
               -Dmaven.main.skip \
               -Dmaven.test.skip \
-              -s ${{inputs.maven_settings}} \
               -DrepositoryId='maven-releases' \
               -DrepositoryIdOSSRH='true' \
-              -PstageOSSRH -Dgpg.passphrase=${{inputs.gpg_passphrase}}'
+              -PstageOSSRH -Dgpg.passphrase=${{inputs.gpg_passphrase}}
+      env:
+        OSSRH_USERNAME: ${{inputs.ossrh_username}}
+        OSSRH_PASSWORD: ${{inputs.ossrh_token}}
     
 
