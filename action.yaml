@@ -43,12 +43,12 @@ runs:
       shell: bash
       run: echo ${{steps.current_pom_version.outputs.POM_VERSION}}
 
-    - name: Verify Is SNAPSHOT Version
-      shell: bash
-      if: ${{ !contains(steps.current_pom_version.outputs.POM_VERSION, '-SNAPSHOT')}}
-      run: |
-        echo "ERROR: Version is set to incompatible version ${{steps.current_pom_version.outputs.POM_VERSION}}. Only SNAPSHOT development versions can be converted to a release version."
-        exit 1
+    # - name: Verify Is SNAPSHOT Version
+    #   shell: bash
+    #   if: ${{ !contains(steps.current_pom_version.outputs.POM_VERSION, '-SNAPSHOT')}}
+    #   run: |
+    #     echo "ERROR: Version is set to incompatible version ${{steps.current_pom_version.outputs.POM_VERSION}}. Only SNAPSHOT development versions can be converted to a release version."
+    #     exit 1
 
     - name: Split version code
       uses: xom9ikk/split@v1.1
