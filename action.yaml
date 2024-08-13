@@ -41,7 +41,7 @@ runs:
 
     - name: Print Version
       shell: bash
-      run: echo "Current SNAPSHOT Version - " ${{steps.current_pom_version.outputs.POM_VERSION}}
+      run: echo "Current SNAPSHOT Version - " $POM_VERSION
 
     # - name: Verify Is SNAPSHOT Version
     #   shell: bash
