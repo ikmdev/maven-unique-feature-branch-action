@@ -22,6 +22,12 @@ inputs:
   gpg_passphrase:
     description: "GPG Passphrase"
     required: true
+  next_snapshot_version:
+    description: "Next Dev/Snapshot Version"
+    required: true
+  release_version:
+    description: "Current Release Version"
+    required: true
   
 
 runs:
@@ -31,54 +37,7 @@ runs:
       uses: actions/checkout@v4
       with:
         token: ${{inputs.ikmdevops_pat}}
-
-    - name: Get Current Version
-      shell: bash
-      id: current_pom_version
-      run: |
-          POM_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "POM_VERSION=${POM_VERSION}" >> $GITHUB_ENV
-
-    - name: Print Version
-      shell: bash
-      run: |
-        echo "Current SNAPSHOT Version - " $POM_VERSION
-
-    # - name: Verify Is SNAPSHOT Version
-    #   shell: bash
-    #   if: ${{ !contains(steps.current_pom_version.outputs.POM_VERSION, '-SNAPSHOT')}}
-    #   run: |
-    #     echo "ERROR: Version is set to incompatible version ${{steps.current_pom_version.outputs.POM_VERSION}}. Only SNAPSHOT development versions can be converted to a release version."
-    #     exit 1
-
-    - name: Split version code
-      uses: xom9ikk/split@v1.1
-      id: splitCurrentVersion
-      with:
-        string: ${{steps.current_pom_version.outputs.POM_VERSION}}
-        separator: '-'
-        limit: -1
-
-    - name: Split version code - Separate By .
-      uses: xom9ikk/split@v1.1
-      id: splitVersionMinor
-      with:
-        string: ${{steps.splitCurrentVersion.outputs._0}}
-        separator: .
-        limit: -1
-
-    - name: Increment Snapshot Version
-      shell: bash
-      id: nextSnapshotVersion
-      run: |
-        SnapshotVersion=${{steps.splitVersionMinor.outputs._0}}.$((${{steps.splitVersionMinor.outputs._1}} + 1)).${{steps.splitVersionMinor.outputs._2}}-SNAPSHOT
-        echo "SnapshotVersion=${SnapshotVersion}" >> $GITHUB_ENV
-
-    - name: Print Information
-      shell: bash
-      run: |
-        echo "Release Version -- ${{steps.splitCurrentVersion.outputs._0}}"
-        echo "Snapshot Version -- ${{steps.nextSnapshotVersion.outputs.SnapshotVersion}}"
+   
 
     - name: Set Release Version
       shell: bash
