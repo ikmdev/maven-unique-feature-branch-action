@@ -61,9 +61,6 @@ runs:
       run: |
           cat ~/.m2/settings.xml
 
-    - name: Checkout Code Repository
-      uses: actions/checkout@v4
-
     - name: Extract Version
       id: get_current_version
       shell: bash
@@ -144,8 +141,8 @@ runs:
            git config user.email ${{inputs.ikmdevops_email}}
            git commit -m 'Release ${{steps.splitCurrentVersion.outputs._0}}'
            git tag -a ${{steps.splitCurrentVersion.outputs._0}} -m '${{steps.splitCurrentVersion.outputs._0}}' --force
-      env:
-        GH_TOKEN: ${{ inputs.ikmdevops_pat }}
+    
+    
 
     - name: Set Dev Version
       shell: bash
@@ -161,8 +158,6 @@ runs:
            git commit -m 'Set next dev version to ${{steps.nextSnapshotVersion.outputs.SnapshotVersion}}'
            git push origin HEAD:main
            git push --tags origin
-      env:
-        GH_TOKEN: ${{ inputs.ikmdevops_pat }}
 
 
     - name: Create Release
