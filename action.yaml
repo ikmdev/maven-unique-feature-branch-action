@@ -56,11 +56,15 @@ runs:
         gpg-passphrase: ${{ inputs.gpg_passphrase}}
 
     - name: Cat settings.xml
-      id: cat_settings
       shell: bash
       run: |
           cat ~/.m2/settings.xml
 
+    - name: List Secret Keys
+      shell: bash
+      run: |
+        gpg --list-secret-keys
+      
     - name: Extract Version
       id: get_current_version
       shell: bash
