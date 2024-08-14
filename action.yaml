@@ -206,9 +206,7 @@ runs:
               -Dmaven.test.skip \
               -DrepositoryId='maven-releases' \
               -DrepositoryIdOSSRH='true' \
-              -PstageOSSRH \
-              -Dgpg.passphrase=${{inputs.gpg_passphrase}}
-              -D=gpg.passphraseServerId=gpg.passphrase
+              -PstageOSSRH
       env:
         MAVEN_USERNAME: ${{inputs.ossrh_username}}
         MAVEN_CENTRAL_TOKEN: ${{inputs.ossrh_token}}
