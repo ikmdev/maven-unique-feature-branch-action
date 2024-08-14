@@ -204,7 +204,7 @@ runs:
               -DrepositoryIdOSSRH='true' \
               -PstageOSSRH \
               -Dgpg.passphrase=${{inputs.gpg_passphrase}}
-              -D=gpg.passphraseServerId=ossrh
+              -D=gpg.passphraseServerId=gpg.passphrase
       env:
         OSSRH_USERNAME: ${{inputs.ossrh_username}}
         OSSRH_PASSWORD: ${{inputs.ossrh_token}}
