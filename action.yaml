@@ -50,10 +50,10 @@ runs:
         distribution: 'adopt'
         java-version: '21'
         server-id: ossrh
-        MAVEN_USERNAME: ${{ inputs.ossrh_username}}
-        MAVEN_CENTRAL_TOKEN: ${{ inputs.ossrh_token }}
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_CENTRAL_TOKEN
         gpg-private-key: ${{ inputs.gpg_key }}
-        gpg-passphrase: ${{ inputs.gpg_passphrase}}
+        gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
     - name: Cat settings.xml
       shell: bash
@@ -210,8 +210,7 @@ runs:
               -Dgpg.passphrase=${{inputs.gpg_passphrase}}
               -D=gpg.passphraseServerId=gpg.passphrase
       env:
-        OSSRH_USERNAME: ${{inputs.ossrh_username}}
-        OSSRH_PASSWORD: ${{inputs.ossrh_token}}
-        OSSRH_GPG_KEY: ${{inputs.ossrh_gpg_key}}
-    
+        MAVEN_USERNAME: ${{inputs.ossrh_username}}
+        MAVEN_CENTRAL_TOKEN: ${{inputs.ossrh_token}}
+        MAVEN_GPG_PASSPHRASE: ${{inputs.ossrh_gpg_key}}
 
