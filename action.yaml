@@ -122,7 +122,9 @@ runs:
     - name: Set Release Version
       shell: bash
       run: |
-          ./mvnw -B versions:set \
+          ./mvnw \
+          --batch-mode \
+          versions:set \
           -DnewVersion=${{steps.splitCurrentVersion.outputs._0}} \
           -DgenerateBackupPoms=false
 
@@ -153,7 +155,8 @@ runs:
       run: |
           ./mvnw -B versions:set \
           -DnewVersion=${{steps.nextSnapshotVersion.outputs.SnapshotVersion}} \
-          -DgenerateBackupPoms=false
+          -DgenerateBackupPoms=false \
+          --batch-mode
 
     - name: Commit & Push
       shell: bash
@@ -208,7 +211,7 @@ runs:
               -DrepositoryIdOSSRH='true' \
               -PstageOSSRH
       env:
-        MAVEN_USERNAME: ${{inputs.ossrh_username}}
-        MAVEN_CENTRAL_TOKEN: ${{inputs.ossrh_token}}
-        MAVEN_GPG_PASSPHRASE: ${{inputs.ossrh_gpg_key}}
+        MAVEN_USERNAME: ${{ inputs.ossrh_username }}
+        MAVEN_CENTRAL_TOKEN: ${{ inputs.ossrh_token }}
+        MAVEN_GPG_PASSPHRASE: ${{ inputs.gpg_passphrase }}
 
