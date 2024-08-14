@@ -207,7 +207,7 @@ runs:
               -DskipITs \
               -Dmaven.main.skip \
               -Dmaven.test.skip \
-              -DrepositoryId='maven-releases' \
+              -DrepositoryId=ossrh \
               -DrepositoryIdOSSRH='true' \
               -PstageOSSRH
       env:
