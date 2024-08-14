@@ -16,7 +16,7 @@ env:
 jobs:
   build-job:
     name: Build Job
-    runs-on: Ubuntu-latest
+    runs-on: ubuntu-24.04
     if: github.repository_owner == 'ikmdev'
     steps:
           - name: Build IKMDEV Code

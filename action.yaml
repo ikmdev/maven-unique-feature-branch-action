@@ -19,6 +19,9 @@ inputs:
   gpg_passphrase:
     description: "GPG Passphrase"
     required: true
+  gpg_key:
+    description: "GPG Key"
+    required: true
   next_snapshot_version:
     description: "Next Dev/Snapshot Version"
     required: true
@@ -31,9 +34,7 @@ inputs:
   ossrh_token:
     description: "OSSRH Token"
     required: true
-  ossrh_gpg_key:
-    description: "OSSRH Key"
-    required: true
+  
 
 runs:
   using: "composite" 
