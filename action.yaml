@@ -44,6 +44,67 @@ runs:
       with:
         token: ${{inputs.ikmdevops_pat}}
 
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'adopt'
+        java-version: '21'
+        server-id: ossrh
+        MAVEN_USERNAME: ${{ inputs.ossrh_username}}
+        MAVEN_CENTRAL_TOKEN: ${{ inputs.ossrh_token }}
+        gpg-private-key: ${{ inputs.gpg_key }}
+        gpg-passphrase: ${{ inputs.gpg_passphrase}}
+
+    - name: Checkout Code Repository
+      uses: actions/checkout@v4
+
+    - name: Extract Version
+      id: get_current_version
+      shell: bash
+      run: |
+          echo "POM_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
+
+    - name: Print Maven POM project version
+      shell: bash
+      run: |
+        echo "version = ${{ steps.get_current_version.outputs.POM_VERSION }}"
+
+    - name: Verify Is SNAPSHOT Version
+      if: ${{ !contains(steps.get_current_version.outputs.POM_VERSION, '-SNAPSHOT')}}
+      shell: bash
+      run: |
+        echo "ERROR: Version is set to incompatible version ${{steps.get_current_version.outputs.POM_VERSION}}. Only SNAPSHOT development versions can be converted to a release version."
+        exit 1
+
+    - name: Split version code
+      uses: xom9ikk/split@v1.1
+      id: splitCurrentVersion
+      with:
+        string: ${{steps.get_current_version.outputs.POM_VERSION}}
+        separator: '-'
+        limit: -1
+
+    - name: Split version code - Separate By .
+      uses: xom9ikk/split@v1.1
+      id: splitVersionMinor
+      with:
+        string: ${{steps.splitCurrentVersion.outputs._0}}
+        separator: .
+        limit: -1
+
+    - name: Increment Snapshot Version
+      id: nextSnapshotVersion
+      shell: bash
+      run: |
+        SnapshotVersion="${{steps.splitVersionMinor.outputs._0}}.$((${{steps.splitVersionMinor.outputs._1}} + 1)).${{steps.splitVersionMinor.outputs._2}}-SNAPSHOT"
+        echo "::set-output name=SnapshotVersion::$SnapshotVersion"
+
+    - name: Print Information
+      shell: bash
+      run: |
+        echo "Release Version -- ${{steps.splitCurrentVersion.outputs._0}}"
+        echo "Snapshot Version -- ${{steps.nextSnapshotVersion.outputs.SnapshotVersion}}"
+          
     - name: Print Versions
       shell: bash
       run: |
@@ -125,25 +186,6 @@ runs:
           -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
           -PcodeQuality
 
-    # - name: Deploy To Nexus
-    #   shell: bash
-    #   run: |
-    #    sudo -u ec2-user bash -c \
-    #     'mvn deploy \
-    #           --batch-mode \
-    #           -e \
-    #           -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-    #           -DskipTests \
-    #           -DskipITs \
-    #           -Dmaven.main.skip \
-    #           -Dmaven.test.skip \
-    #           -s ${{inputs.maven_settings}} \
-    #           -DrepositoryId='maven-releases' \
-    #           -Dgpg.passphrase=${{inputs.gpg_passphrase}}'
-
-
-
-
     - name: Publish To OSSRH (Maven Central Staging)
       shell: bash
       run: |
@@ -157,7 +199,9 @@ runs:
               -Dmaven.test.skip \
               -DrepositoryId='maven-releases' \
               -DrepositoryIdOSSRH='true' \
-              -PstageOSSRH -Dgpg.passphrase=${{inputs.gpg_passphrase}}
+              -PstageOSSRH \
+              -Dgpg.passphrase=${{inputs.gpg_passphrase}}
+              -D=gpg.passphraseServerId=ossrh
       env:
         OSSRH_USERNAME: ${{inputs.ossrh_username}}
         OSSRH_PASSWORD: ${{inputs.ossrh_token}}
