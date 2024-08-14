@@ -31,7 +31,9 @@ inputs:
   ossrh_token:
     description: "OSSRH Token"
     required: true
-  
+  ossrh_gpg_key:
+    description: "OSSRH Key"
+    required: true
 
 runs:
   using: "composite" 
@@ -158,5 +160,6 @@ runs:
       env:
         OSSRH_USERNAME: ${{inputs.ossrh_username}}
         OSSRH_PASSWORD: ${{inputs.ossrh_token}}
+        OSSRH_GPG_KEY: ${{inputs.ossrh_gpg_key}}
     
 
