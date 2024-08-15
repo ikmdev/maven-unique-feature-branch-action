@@ -3,10 +3,6 @@ description: Utilized for creating releases of projects
 
 # Inputs
 inputs:
-  branch_name: 
-    description: "Current Branch"
-    required: true
-    default: "main"
   ikmdevops_pat:
     description: "PAT TOKEN for IKMDevops User"
     required: true
@@ -21,12 +17,6 @@ inputs:
     required: true
   gpg_key:
     description: "GPG Key"
-    required: true
-  next_snapshot_version:
-    description: "Next Dev/Snapshot Version"
-    required: true
-  release_version:
-    description: "Current Release Version"
     required: true
   ossrh_username:
     description: "OSSRH USERNAME"
@@ -47,7 +37,7 @@ runs:
     - name: Setup Java
       uses: actions/setup-java@v4
       with:
-        distribution: 'adopt'
+        distribution: 'zulu'
         java-version: '21'
         server-id: ossrh
         server-username: MAVEN_USERNAME
