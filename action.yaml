@@ -106,7 +106,7 @@ runs:
       shell: bash
       run: |
         echo "Release Version: ${{ steps.increment_version.outputs.RELEASE_VERSION }}"
-        echo "Next Release Version: ${{ steps.increment_version.outputs.NEW_DEV_VERSION }}"
+        echo "Next IKM Release Version: ${{ steps.increment_version.outputs.NEW_DEV_VERSION }}"
 
     - name: Set Release Version
       shell: bash
@@ -134,8 +134,8 @@ runs:
            git add .
            git config user.name "ikmdevops"
            git config user.email ${{inputs.ikmdevops_email}}
-           git commit -m 'Release ${{steps.splitCurrentVersion.outputs._0}}'
-           git tag -a ${{needs.release.outputs.RELEASE_VERSION}} -m '${{needs.release.outputs.RELEASE_VERSION}}' --force
+           git commit -m 'Release ${{steps.increment_version.outputs.RELEASE_VERSION}}'
+           git tag -a ${{steps.increment_version.outputs.RELEASE_VERSION}} -m '${{steps.increment_version.outputs.RELEASE_VERSION}}' --force
 
     - name: Set New Release Version
       shell: bash
