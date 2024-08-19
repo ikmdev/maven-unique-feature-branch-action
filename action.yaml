@@ -61,10 +61,12 @@ runs:
         node-version: '16'
 
     - name: Install XML2JS
+      shell: bash
       run: npm install xml2js
 
     - name: Extract and Increment Version
       id: increment_version
+      shell: bash
       run: |
         # Extract the current version form pom.xml
         CURRENT_VERSION=$(grep -oPm1 "(?<=<version>)[^<]+" pom.xml)
@@ -127,7 +129,7 @@ runs:
     - name: Create tag
       shell: bash
       run: |
-           git remote set-url origin https://git:${{secrets.IKMDEVOPS_PAT_TOKEN}}@github.com/${{github.repository}}.git
+           git remote set-url origin https://git:${{inputs.ikmdevops_pat}}@github.com/${{github.repository}}.git
            git pull -p
            git add .
            git config user.name "ikmdevops"
