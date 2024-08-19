@@ -141,8 +141,6 @@ runs:
     - name: Commit & Push
       shell: bash
       run: |
-           git pull -p
-           git config pull.rebase true
            git add .
            git commit -m 'Set next IKM Release version to ${{steps.increment_version.outputs.NEW_DEV_VERSION}}'
            git push origin HEAD:master
