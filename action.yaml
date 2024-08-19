@@ -95,13 +95,6 @@ runs:
       run: |
         echo "version = ${{ steps.increment_version.outputs.POM_VERSION }}"
 
-    - name: Verify Is SNAPSHOT Version
-      if: ${{ !contains( steps.increment_version.outputs.POM_VERSION, '-SNAPSHOT')}}
-      shell: bash
-      run: |
-        echo "ERROR: Version is set to incompatible version ${{ steps.increment_version.outputs.POM_VERSION}}. Only SNAPSHOT development versions can be converted to a release version."
-        exit 1
-
     - name: Print Versions
       shell: bash
       run: |
