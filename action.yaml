@@ -142,6 +142,7 @@ runs:
       shell: bash
       run: |
            git remote set-url origin https://git:${{inputs.ikmdevops_pat}}@github.com/${{github.repository}}.git
+           git config pull.ff only
            git pull -p
            git add .
            git commit -m 'Set next IKM Release version to ${{steps.increment_version.outputs.NEW_DEV_VERSION}}'
