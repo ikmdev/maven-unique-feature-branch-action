@@ -141,7 +141,6 @@ runs:
     - name: Commit & Push
       shell: bash
       run: |
-           git remote set-url origin https://git:${{inputs.ikmdevops_pat}}@github.com/${{github.repository}}.git
            git config pull.rebase false
            git pull -p
            git add .
