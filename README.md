@@ -2,6 +2,10 @@
 
 This runs standard maven build installs with standard flags used by the IKMDev team.
 
+### Team Ownership - Product Owner
+
+Automation Team
+
 ## How to Use
 
 Create a build in the `.github/workflows` folder, as described in the 
