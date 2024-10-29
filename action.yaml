@@ -29,6 +29,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+
+    - name: Testing PR Action
+      uses: ./.github/actions/js-pull-request-function@main
+      
     - name: Checkout Repository
       uses: actions/checkout@v4
       with:
