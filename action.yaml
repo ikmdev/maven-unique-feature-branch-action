@@ -36,7 +36,7 @@ runs:
          if [ $ACTION == 'Start' ] && [ $PR_EXISTS == 'true' ]; then
             echo "PR for $BRANCH_NAME already exists - ${{steps.prLookup.outputs.pr_html_url}}"
             exit 1
-         elif [ $ACTION == 'Resume' || $ACTION == 'Finish' ]  && [ $PR_EXISTS === 'false' ]; then
+         elif [ [ $ACTION == 'Resume' ] || [ $ACTION == 'Finish' ] ]  && [ $PR_EXISTS === 'false' ]; then
             echo "PR does not exist for $BRANCH_NAME"
             echo "Please create PR"
             exit 1
