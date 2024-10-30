@@ -114,6 +114,7 @@ runs:
       run: |
           
           # Extract the current version from pom.xml
+          git pull -p
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "Current version: $CURRENT_VERSION"
       
@@ -129,6 +130,7 @@ runs:
       shell: bash
       run: |   
           # Extract the current version from pom.xml
+          git pull -p
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "Current version: $CURRENT_VERSION"
       
