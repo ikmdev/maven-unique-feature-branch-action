@@ -180,6 +180,6 @@ runs:
     - name: Commit and push changes
       shell: bash
       run: |
-          git add .
+          git add pom.xml **/pom.xml
           git commit -m "${{steps.commitMessage.outputs.COMMIT_MSG}}"
           git push origin "${{ inputs.feature_branch_name }}"
