@@ -33,6 +33,7 @@ runs:
     - name: Pull Request Validation
       shell: bash
       run: |
+         echo "Status: $PR_EXISTS"
          if [ $ACTION == 'Start' ] && [ $PR_EXISTS == 'true' ]; then
             echo "PR for $BRANCH_NAME already exists - ${{steps.prLookup.outputs.pr_html_url}}"
             exit 1
