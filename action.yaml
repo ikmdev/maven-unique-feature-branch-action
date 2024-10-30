@@ -79,8 +79,9 @@ runs:
     - name: "[Finish | Resume Action] Switch to branch"
       shell: bash
       run: |
-            git checkout ${{inputs.feature_branch_name}}
-            echo "Created and checked out ${{inputs.feature_branch_name}}" 
+            git pull -p;
+            git checkout ${{inputs.feature_branch_name}};
+            echo "Checked out ${{inputs.feature_branch_name}}" 
 
     - name: Verify branch
       shell: bash
@@ -114,7 +115,6 @@ runs:
       run: |
           
           # Extract the current version from pom.xml
-          git pull -p
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "Current version: $CURRENT_VERSION"
       
@@ -130,7 +130,6 @@ runs:
       shell: bash
       run: |   
           # Extract the current version from pom.xml
-          git pull -p
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "Current version: $CURRENT_VERSION"
       
