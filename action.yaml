@@ -110,9 +110,10 @@ runs:
           # Update the version in pom.xml
           mvn versions:set -DnewVersion="$NEW_VERSION" -DgenerateBackupPoms=false -DprocessAllModules=true
 
-     - name: Modify Maven coordinate
-       shell: bash
-       run: |   
+    - name: "[Resume Action] Modify Maven coordinate"
+      if: inputs.action == 'Resume'
+      shell: bash
+      run: |   
           # Extract the current version from pom.xml
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "Current version: $CURRENT_VERSION"
