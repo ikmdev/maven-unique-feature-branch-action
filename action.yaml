@@ -44,7 +44,7 @@ runs:
 
           if (ACTION == 'Start' && PR_EXISTS == 'true'){
             err_flag = 'true';
-            err_message = `PR for ${BRANCH_NAME} already exists - ${{steps.prLookup.outputs.pr_html_url}}`;
+            err_message = `PR for ${BRANCH_NAME} already exists - ${{steps.prSearch.outputs.pr_html_url}}`;
           } else if ((ACTION == 'Finish' || ACTION == 'Resume') && PR_EXISTS == 'false') {
             err_flag = 'true';
             err_message = `PR does not exist for ${BRANCH_NAME}`
