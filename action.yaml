@@ -31,21 +31,35 @@ runs:
           branch_name: ${{inputs.feature_branch_name}}
 
     - name: Pull Request Validation
-      shell: bash
+      uses: actions/github-script@v7
+      id: prValidation
+      with:
+        result-encoding: json
+        script: |
+          const ACTION = "${{inputs.action}}";
+          const PR_EXISTS = "${{steps.prSearch.outputs.pr_exists}}";
+          const BRANCH_NAME = "${{inputs.feature_branch_name}}";
+          var err_message = '';
+          var err_flag = 'false';
+
+          if (ACTION == 'Start' && PR_EXISTS == 'true'){
+            err_flag = 'true';
+            err_message = `PR for ${BRANCH_NAME} already exists - ${{steps.prLookup.outputs.pr_html_url}}`;
+          } else if ((ACTION == 'Finish' || ACTION == 'Resume') && PR_EXISTS == 'false') {
+            err_flag = 'true';
+            err_message = `PR does not exist for ${BRANCH_NAME}`
+          }
+             
+
+          return {err_flag, err_message}
+
+    - name: If PR Validation Fail 
+      if: fromJson(steps.prValidation.outputs.result).err_flag == 'true'
+      shell: bash 
       run: |
-         echo "Status: $PR_EXISTS"
-         if [ $ACTION == 'Start' ] && [ $PR_EXISTS == 'true' ]; then
-            echo "PR for $BRANCH_NAME already exists - ${{steps.prLookup.outputs.pr_html_url}}"
-            exit 1
-         elif { [[ $ACTION == 'Resume'  || $ACTION == 'Finish' ]] ;} && [[ $PR_EXISTS == 'false' ]]; then
-            echo "PR does not exist for $BRANCH_NAME"
-            echo "Please create PR"
-            exit 1
-         fi
-      env:
-          ACTION: ${{inputs.action}}
-          PR_EXISTS: ${{steps.prLookup.outputs.pr_exists}}
-          BRANCH_NAME: ${{inputs.feature_branch_name}}
+        echo "${{fromJson(steps.prValidation.outputs.result).err_message}}"
+        exit 1;
+          
 
     - name: Checkout code
       uses: actions/checkout@v4
