@@ -3,28 +3,9 @@ description: Utilized for creating releases of projects with unique versioning
 
 # Inputs
 inputs:
-  ikmdevops_pat:
-    description: "PAT TOKEN for IKMDevops User"
-    required: true
-  ikmdevops_email:
-    description: "Email For IKMDevops User"
-    default: 'devops@ikm.dev'
-  github_token:
-    description: "GitHub Token"
-    required: true
-  gpg_passphrase:
-    description: "GPG Passphrase"
-    required: true
-  gpg_key:
-    description: "GPG Key"
-    required: true
-  ossrh_username:
-    description: "OSSRH USERNAME"
-    required: true
-  ossrh_token:
-    description: "OSSRH Token"
-    required: true
-
+  test:
+    required: true 
+    description: "Test"
 
 runs:
   using: "composite"
@@ -32,7 +13,7 @@ runs:
 
     - name: Testing PR Action
       uses: ./.github/actions/js-pull-request-function@main
-      
+
     - name: Checkout Repository
       uses: actions/checkout@v4
       with:
