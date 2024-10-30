@@ -168,4 +168,4 @@ runs:
       run: |
           git add .
           git commit -m "${{steps.commitMessage.outputs.COMMIT_MSG}}"
-          git push origin "${{ inputs.feature_branch_name }}
+          git push origin "${{ inputs.feature_branch_name }}"
