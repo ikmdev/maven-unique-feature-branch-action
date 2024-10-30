@@ -24,7 +24,7 @@ runs:
   steps:
     - name: Pull Request Search For ${{env.BRANCH_NAME}}
       id: prSearch
-      uses: ikmdev/maven-unique-feature-branch-action/.github/actions/js-pull-request-function
+      uses: ikmdev/maven-unique-feature-branch-action/.github/actions/js-pull-request-function@master
       with:
           github_token: ${{inputs.github_token}}
           repository: ikmdev/${{inputs.repository}}
