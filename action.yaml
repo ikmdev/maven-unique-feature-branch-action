@@ -149,7 +149,7 @@ runs:
           fi
 
     - name: Commit Message
-      if: commitMessage
+      id: commitMessage
       shell: bash
       run: |
          if [ $ACTION == 'Start' ]; then
