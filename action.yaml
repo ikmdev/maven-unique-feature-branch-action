@@ -81,6 +81,7 @@ runs:
       if: inputs.action == 'Finish' || inputs.action == 'Resume'
       shell: bash
       run: |
+            git pull origin main
             git checkout ${{inputs.feature_branch_name}};
             echo "Checked out ${{inputs.feature_branch_name}}" 
 
