@@ -1,5 +1,5 @@
-const core =  require ('@actions/core');
-const { Octokit } = require('@octokit/core');
+import core from '@actions/core';
+import { Octokit } from '@octokit/core';
 
 
 
