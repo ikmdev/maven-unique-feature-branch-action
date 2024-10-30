@@ -70,18 +70,17 @@ runs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
-    - name: Create or switch to branch
+    - name: "[Start Action] Create & switch to branch"
       shell: bash
       run: |
-          if git ls-remote --exit-code --heads origin "$BRANCH_NAME"; then
-            git checkout $BRANCH_NAME
-            echo "Checked out existing branch $BRANCH_NAME"
-          else
-            git checkout -b $BRANCH_NAME
-            echo "Created and checked out new branch $BRANCH_NAME"
-          fi
-      env:
-        BRANCH_NAME: ${{inputs.feature_branch_name}}
+            git checkout -b ${{inputs.feature_branch_name}}
+            echo "Created and checked out new branch ${{inputs.feature_branch_name}}"  
+
+    - name: "[Finish | Resume Action] Switch to branch"
+      shell: bash
+      run: |
+            git checkout ${{inputs.feature_branch_name}}
+            echo "Created and checked out ${{inputs.feature_branch_name}}" 
 
     - name: Verify branch
       shell: bash
