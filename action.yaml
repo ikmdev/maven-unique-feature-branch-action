@@ -22,6 +22,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
     - name: Pull Request Search For ${{env.BRANCH_NAME}}
       id: prSearch
       uses: ./.github/actions/js-pull-request-function
@@ -46,8 +50,6 @@ runs:
           PR_EXISTS: ${{steps.prLookup.outputs.pr_exists}}
           BRANCH_NAME: ${{inputs.feature_branch_name}}
 
-    - name: Checkout code
-      uses: actions/checkout@v4
 
     - name: Configure Git
       shell: bash
