@@ -71,15 +71,16 @@ runs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
     - name: "[Start Action] Create & switch to branch"
+      if: inputs.action == 'Start'
       shell: bash
       run: |
             git checkout -b ${{inputs.feature_branch_name}}
             echo "Created and checked out new branch ${{inputs.feature_branch_name}}"  
 
     - name: "[Finish | Resume Action] Switch to branch"
+      if: inputs.action == 'Finish' || inputs.action == 'Resume'
       shell: bash
       run: |
-            git pull -p;
             git checkout ${{inputs.feature_branch_name}};
             echo "Checked out ${{inputs.feature_branch_name}}" 
 
@@ -183,4 +184,4 @@ runs:
       run: |
           git add pom.xml **/pom.xml
           git commit -m "${{steps.commitMessage.outputs.COMMIT_MSG}}"
-          git push origin "${{ inputs.feature_branch_name }}"
+          git push -u origin "${{ inputs.feature_branch_name }}"
