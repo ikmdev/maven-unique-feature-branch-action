@@ -196,7 +196,7 @@ runs:
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{inputs.github_token}}" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
-          ${{steps.getPRList.outputs.pr_url}}\
+          ${{steps.prSearch.outputs.pr_url}}\
           -d '{"title":"new title","body":"updated body","state":"open","base":"main"}'
 
     
