@@ -91,8 +91,8 @@ runs:
           git branch
           echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
 
-    - name: "[Start Action] Modify Maven coordinate" 
-      if: inputs.action == 'Start'
+    - name: "[${{(inputs.action == 'Start' || inputs.action == 'Resume')  && '${{inputs.action}}' || 'Start | Resume'}} Action] Modify Maven coordinate" 
+      if: inputs.action == 'Start' || inputs.action == 'Resume'
       shell: bash
       run: |
 
@@ -127,43 +127,43 @@ runs:
           # Update the version in pom.xml
           mvn versions:set -DnewVersion="$NEW_VERSION" -DgenerateBackupPoms=false -DprocessAllModules=true
 
-    - name: "[Resume Action] Modify Maven coordinate"
-      if: inputs.action == 'Resume'
-      shell: bash
-      run: |   
-          # Extract the current version from pom.xml
-          CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "Current version: $CURRENT_VERSION"
+    # - name: "[Resume Action] Modify Maven coordinate"
+    #   if: inputs.action == 'Resume'
+    #   shell: bash
+    #   run: |   
+    #       # Extract the current version from pom.xml
+    #       CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+    #       echo "Current version: $CURRENT_VERSION"
       
-          # Initialize version_changed to 'false'
-          echo "version_changed=false" >> $GITHUB_OUTPUT
+    #       # Initialize version_changed to 'false'
+    #       echo "version_changed=false" >> $GITHUB_OUTPUT
       
-          # Expected new version pattern
-          EXPECTED_SUFFIX="-feature-${{ inputs.original_branch_name }}-SNAPSHOT"
+    #       # Expected new version pattern
+    #       EXPECTED_SUFFIX="-feature-${{ inputs.original_branch_name }}-SNAPSHOT"
       
-          # Check if version already includes '-feature-branch_name-SNAPSHOT'
-          if [[ "$CURRENT_VERSION" != *"$EXPECTED_SUFFIX" ]]; then
+    #       # Check if version already includes '-feature-branch_name-SNAPSHOT'
+    #       if [[ "$CURRENT_VERSION" != *"$EXPECTED_SUFFIX" ]]; then
           
-            # Remove '-SNAPSHOT' if present
-            BASE_VERSION=${CURRENT_VERSION%-SNAPSHOT}
-            echo "Base version: $BASE_VERSION"
+    #         # Remove '-SNAPSHOT' if present
+    #         BASE_VERSION=${CURRENT_VERSION%-SNAPSHOT}
+    #         echo "Base version: $BASE_VERSION"
           
-            # Remove existing '-feature-*' if present
-            BASE_VERSION=${BASE_VERSION%-feature-*}
-            echo "Base version after removing existing feature suffix: $BASE_VERSION"
+    #         # Remove existing '-feature-*' if present
+    #         BASE_VERSION=${BASE_VERSION%-feature-*}
+    #         echo "Base version after removing existing feature suffix: $BASE_VERSION"
             
-            # Create new version with '-feature-branch_name-SNAPSHOT'
-            NEW_VERSION="${BASE_VERSION%-feature-*}-feature-${{ inputs.original_branch_name }}-SNAPSHOT"
-            echo "New version: $NEW_VERSION"
+    #         # Create new version with '-feature-branch_name-SNAPSHOT'
+    #         NEW_VERSION="${BASE_VERSION%-feature-*}-feature-${{ inputs.original_branch_name }}-SNAPSHOT"
+    #         echo "New version: $NEW_VERSION"
             
-            # Update the version in pom.xml
-            mvn versions:set -DnewVersion="$NEW_VERSION" -DgenerateBackupPoms=false -DprocessAllModules=true
+    #         # Update the version in pom.xml
+    #         mvn versions:set -DnewVersion="$NEW_VERSION" -DgenerateBackupPoms=false -DprocessAllModules=true
             
-            # Set output to indicate that version was changed
-            echo "version_changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "Version already includes '$EXPECTED_SUFFIX'"
-          fi
+    #         # Set output to indicate that version was changed
+    #         echo "version_changed=true" >> $GITHUB_OUTPUT
+    #       else
+    #         echo "Version already includes '$EXPECTED_SUFFIX'"
+    #       fi
 
     - name: Commit Message
       id: commitMessage
