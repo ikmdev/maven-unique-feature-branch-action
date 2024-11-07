@@ -96,7 +96,7 @@ runs:
           echo "Base version: $BASE_VERSION"
       
           # Create new version with '-feature-branch_name-SNAPSHOT'
-          NEW_VERSION="${BASE_VERSION}-${{ steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME }}-SNAPSHOT"
+          NEW_VERSION="${BASE_VERSION}-${{ inputs.custom_branch_name }}-SNAPSHOT"
           echo "New version: $NEW_VERSION"
       
           # Update the version in pom.xml
