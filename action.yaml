@@ -46,35 +46,17 @@ runs:
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
     
-    - name: Verify If Branch Exists 
-      id: branchExist
-      shell: bash
-      run : |
-        echo "$BRANCH_NAME"
-        if git show-ref -q --heads "$BRANCH_NAME"; then
-            echo '$BRANCH_NAME exists'
-            echo 'BRANCH_EXISTS=true' >> $GITHUB_OUTPUT
-        else 
-            echo '$BRANCH_NAME does not exists'
-            echo 'BRANCH_EXISTS=false' >> $GITHUB_OUTPUT
-        fi
-      env:
-          BRANCH_NAME: ${{steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME}}
+    - id: check-branch-exists
+      uses: GuillaumeFalourd/branch-exists@v1.1
+      with:
+        branch: ${{steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME}}
 
-    # - name: "[Start Action] Create & switch to branch"
-    #   if: inputs.action == 'Start'
-    #   shell: bash
-    #   run: |
-    #         git checkout -b ${{inputs.feature_branch_name}}
-    #         echo "Created and checked out new branch ${{inputs.feature_branch_name}}"  
 
     - name: "[${{inputs.action}} Action] Switch to branch"
-      #if: inputs.action == 'Finish'
       shell: bash
       run: |
-            echo ${{steps.branchExist.outputs.BRANCH_EXISTS}}
             git pull -p
-            git checkout ${{steps.branchExist.outputs.BRANCH_EXISTS == 'true' && '' || '-b'}} ${{steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME}}
+            git checkout ${{steps.check-branch-exists.outputs.exists == 'false' && '-b' || ''}} ${{steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME}}
             echo "Checked out ${{steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME}}" 
 
     - name: Verify branch
