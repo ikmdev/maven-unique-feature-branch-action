@@ -29,7 +29,7 @@ runs:
          if [ $IS_DEFAULT_BRANCH == 'true' ]; then
             echo "FEATURE_BRANCH_NAME=feature/$BRANCH_NAME" >> $GITHUB_OUTPUT
          else
-            echo "FEATURE_BRANCH_NAME=TRIGGER_BRANCH_NAME" >> $GITHUB_OUTPUT
+            echo "FEATURE_BRANCH_NAME=$TRIGGER_BRANCH_NAME" >> $GITHUB_OUTPUT
          fi
       env:
           IS_DEFAULT_BRANCH: ${{inputs.is_default_branch}}
