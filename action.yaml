@@ -31,7 +31,7 @@ runs:
             echo "BASE_BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
          else
             echo "FEATURE_BRANCH_NAME=$TRIGGER_BRANCH_NAME" >> $GITHUB_OUTPUT
-            ecoh "BASE_BRANCH_NAME=$(echo "$TRIGGER_BRANCH_NAME" | sed "s/feature///")" >> $GITHUB_OUTPUT
+            ecoh "BASE_BRANCH_NAME=$(echo "$TRIGGER_BRANCH_NAME" | sed "s/ feature/ //")" >> $GITHUB_OUTPUT
          fi
       env:
           IS_DEFAULT_BRANCH: ${{inputs.is_default_branch}}
