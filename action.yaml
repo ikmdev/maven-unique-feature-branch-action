@@ -6,15 +6,15 @@ inputs:
   action:
     required: true 
     description: "Action Chosen"
-  original_branch_name:
+  custom_branch_name:
     required: true
     description: "Original Branch Name From Input"
-  feature_branch_name:
+  trigger_branch_name: 
+    required: true 
+    description: "Branch Workflow is triggered from"
+  is_default_branch:
     required: true
-    description: "Feature Branch Name"
-  repository:
-    required: true
-    description: "Repository Name"
+    description: "Whether workflow was triggered on default or feature branch"
   github_token:
     required: true
     description: "GitHub Token"
@@ -22,44 +22,20 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Pull Request Search For ${{env.BRANCH_NAME}}
-      id: prSearch
-      uses: ikmdev/maven-unique-feature-branch-action/.github/actions/js-pull-request-function@master
-      with:
-          github_token: ${{inputs.github_token}}
-          repository: ikmdev/${{inputs.repository}}
-          branch_name: ${{inputs.feature_branch_name}}
-
-    - name: Pull Request Validation
-      uses: actions/github-script@v7
-      id: prValidation
-      with:
-        result-encoding: json
-        script: |
-          const ACTION = "${{inputs.action}}";
-          const PR_EXISTS = "${{steps.prSearch.outputs.pr_exists}}";
-          const BRANCH_NAME = "${{inputs.feature_branch_name}}";
-          var err_message = '';
-          var err_flag = 'false';
-
-          if (ACTION == 'Start' && PR_EXISTS == 'true'){
-            err_flag = 'true';
-            err_message = `PR for ${BRANCH_NAME} already exists - ${{steps.prSearch.outputs.pr_html_url}}`;
-          } else if ((ACTION == 'Finish' || ACTION == 'Resume') && PR_EXISTS == 'false') {
-            err_flag = 'true';
-            err_message = `PR does not exist for ${BRANCH_NAME}`
-          }
-             
-
-          return {err_flag, err_message}
-
-    - name: If PR Validation Fail 
-      if: fromJson(steps.prValidation.outputs.result).err_flag == 'true'
-      shell: bash 
+    - name: Set Feature Branch Output
+      id: featureBranchOutput
+      shell: bash
       run: |
-        echo "${{fromJson(steps.prValidation.outputs.result).err_message}}"
-        exit 1;
-          
+         if [ $IS_DEFAULT_BRANCH == 'true' ]; then
+            echo "FEATURE_BRANCH_NAME=feature/$BRANCH_NAME" >> $GITHUB_OUTPUT
+         else
+            echo "FEATURE_BRANCH_NAME=TRIGGER_BRANCH_NAME" >> $GITHUB_OUTPUT
+         fi
+      env:
+          IS_DEFAULT_BRANCH: ${{inputs.is_default_branch}}
+          BRANCH_NAME: ${{inputs.custom_branch_name}}
+          TRIGGER_BRANCH_NAME: ${{inputs.trigger_branch_name}}
+        
 
     - name: Checkout code
       uses: actions/checkout@v4
@@ -69,21 +45,35 @@ runs:
       run: |
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
-
-    - name: "[Start Action] Create & switch to branch"
-      if: inputs.action == 'Start'
+    
+    - name: Verify If Branch Exists 
+      id: branchExist
       shell: bash
-      run: |
-            git checkout -b ${{inputs.feature_branch_name}}
-            echo "Created and checked out new branch ${{inputs.feature_branch_name}}"  
+      run : |
+        if git show-ref -q --heads $BRANCH_NAME"; then
+            echo '$BRANCH_NAME exists'
+            echo 'BRANCH_EXISTS=true' >> $GITHUB_OUTPUT
+        else 
+            echo '$BRANCH_NAME does not exists'
+            echo 'BRANCH_EXISTS=false' >> $GITHUB_OUTPUT
+        fi
+      env:
+        BRANCH_NAME: ${{steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME}}
 
-    - name: "[Finish | Resume Action] Switch to branch"
-      if: inputs.action == 'Finish' || inputs.action == 'Resume'
+    # - name: "[Start Action] Create & switch to branch"
+    #   if: inputs.action == 'Start'
+    #   shell: bash
+    #   run: |
+    #         git checkout -b ${{inputs.feature_branch_name}}
+    #         echo "Created and checked out new branch ${{inputs.feature_branch_name}}"  
+
+    - name: "[${{inputs.action}} Action] Switch to branch"
+      #if: inputs.action == 'Finish'
       shell: bash
       run: |
             git pull -p
-            git checkout ${{inputs.feature_branch_name}};
-            echo "Checked out ${{inputs.feature_branch_name}}" 
+            git checkout ${{steps.branchExist.outputs.BRANCH_EXISTS != 'true' && '-b' || ''}} ${{steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME}}
+            echo "Checked out ${{steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME}}" 
 
     - name: Verify branch
       shell: bash
@@ -91,8 +81,8 @@ runs:
           git branch
           echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
 
-    - name: "[${{(inputs.action == 'Start' || inputs.action == 'Resume')  && '${{inputs.action}}' || 'Start | Resume'}} Action] Modify Maven coordinate" 
-      if: inputs.action == 'Start' || inputs.action == 'Resume'
+    - name: "[Start Action] Modify Maven coordinate" 
+      if: inputs.action == 'Start'
       shell: bash
       run: |
 
@@ -105,7 +95,7 @@ runs:
           echo "Base version: $BASE_VERSION"
       
           # Create new version with '-feature-branch_name-SNAPSHOT'
-          NEW_VERSION="${BASE_VERSION}-feature-${{ inputs.original_branch_name }}-SNAPSHOT"
+          NEW_VERSION="${BASE_VERSION}-${{ steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME }}-SNAPSHOT"
           echo "New version: $NEW_VERSION"
       
           # Update the version in pom.xml
@@ -121,49 +111,12 @@ runs:
           echo "Current version: $CURRENT_VERSION"
       
           # Remove '-feature-branch_name' from the version
-          NEW_VERSION=$(echo "$CURRENT_VERSION" | sed "s/-feature-${{ inputs.original_branch_name }}//")
+          NEW_VERSION=$(echo "$CURRENT_VERSION" | sed "s/-${{ inputs.custom_branch_name }}//")
           echo "Reverted version: $NEW_VERSION"
       
           # Update the version in pom.xml
           mvn versions:set -DnewVersion="$NEW_VERSION" -DgenerateBackupPoms=false -DprocessAllModules=true
 
-    # - name: "[Resume Action] Modify Maven coordinate"
-    #   if: inputs.action == 'Resume'
-    #   shell: bash
-    #   run: |   
-    #       # Extract the current version from pom.xml
-    #       CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-    #       echo "Current version: $CURRENT_VERSION"
-      
-    #       # Initialize version_changed to 'false'
-    #       echo "version_changed=false" >> $GITHUB_OUTPUT
-      
-    #       # Expected new version pattern
-    #       EXPECTED_SUFFIX="-feature-${{ inputs.original_branch_name }}-SNAPSHOT"
-      
-    #       # Check if version already includes '-feature-branch_name-SNAPSHOT'
-    #       if [[ "$CURRENT_VERSION" != *"$EXPECTED_SUFFIX" ]]; then
-          
-    #         # Remove '-SNAPSHOT' if present
-    #         BASE_VERSION=${CURRENT_VERSION%-SNAPSHOT}
-    #         echo "Base version: $BASE_VERSION"
-          
-    #         # Remove existing '-feature-*' if present
-    #         BASE_VERSION=${BASE_VERSION%-feature-*}
-    #         echo "Base version after removing existing feature suffix: $BASE_VERSION"
-            
-    #         # Create new version with '-feature-branch_name-SNAPSHOT'
-    #         NEW_VERSION="${BASE_VERSION%-feature-*}-feature-${{ inputs.original_branch_name }}-SNAPSHOT"
-    #         echo "New version: $NEW_VERSION"
-            
-    #         # Update the version in pom.xml
-    #         mvn versions:set -DnewVersion="$NEW_VERSION" -DgenerateBackupPoms=false -DprocessAllModules=true
-            
-    #         # Set output to indicate that version was changed
-    #         echo "version_changed=true" >> $GITHUB_OUTPUT
-    #       else
-    #         echo "Version already includes '$EXPECTED_SUFFIX'"
-    #       fi
 
     - name: Commit Message
       id: commitMessage
@@ -171,21 +124,19 @@ runs:
       run: |
          if [ $ACTION == 'Start' ]; then
             echo "COMMIT_MSG=[START] Update Maven coordinate for $BRANCH_NAME" >> $GITHUB_OUTPUT
-         elif [ $ACTION == 'Finish' ]; then
-            echo "COMMIT_MSG=[FINISH] Revert Maven coordinate for $BRANCH_NAME" >> $GITHUB_OUTPUT
          else
-            echo "COMMIT_MSG=[RESUME] Update Maven coordinate for $BRANCH_NAME" >> $GITHUB_OUTPUT
+            echo "COMMIT_MSG=[FINISH] Revert Maven coordinate for $BRANCH_NAME" >> $GITHUB_OUTPUT
          fi
       env:
           ACTION: ${{inputs.action}}
-          BRANCH_NAME: ${{inputs.feature_branch_name}}
+          BRANCH_NAME: ${{ steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME }}
     
     - name: Commit and push changes
       shell: bash
       run: |
           git add .
           git commit -m "${{steps.commitMessage.outputs.COMMIT_MSG}}"
-          git push -u origin "${{ inputs.feature_branch_name }}"
+          git push -u origin "${{ steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME }}"
 
 
     
