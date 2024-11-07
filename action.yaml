@@ -73,7 +73,7 @@ runs:
       shell: bash
       run: |
             git pull -p
-            git checkout ${{steps.branchExist.outputs.BRANCH_EXISTS != 'true' && '-b' || ''}} ${{steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME}}
+            git checkout ${{steps.branchExist.outputs.BRANCH_EXISTS != 'true' && '' || '-b'}} ${{steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME}}
             echo "Checked out ${{steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME}}" 
 
     - name: Verify branch
