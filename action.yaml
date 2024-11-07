@@ -50,7 +50,9 @@ runs:
       id: branchExist
       shell: bash
       run : |
-        echo $BRANCH_NAME
+        echo "$BRANCH_NAME"
+        echo git show-ref -q --heads $BRANCH_NAME
+        git show-ref -q --heads $BRANCH_NAME
         if git show-ref -q --heads $BRANCH_NAME; then
             echo '$BRANCH_NAME exists'
             echo 'BRANCH_EXISTS=true' >> $GITHUB_OUTPUT
@@ -59,7 +61,7 @@ runs:
             echo 'BRANCH_EXISTS=false' >> $GITHUB_OUTPUT
         fi
       env:
-        BRANCH_NAME: ${{steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME}}
+          BRANCH_NAME: ${{steps.featureBranchOutput.outputs.FEATURE_BRANCH_NAME}}
 
     # - name: "[Start Action] Create & switch to branch"
     #   if: inputs.action == 'Start'
