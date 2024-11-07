@@ -50,7 +50,8 @@ runs:
       id: branchExist
       shell: bash
       run : |
-        if git show-ref -q --heads $BRANCH_NAME"; then
+        echo $BRANCH_NAME
+        if git show-ref -q --heads $BRANCH_NAME; then
             echo '$BRANCH_NAME exists'
             echo 'BRANCH_EXISTS=true' >> $GITHUB_OUTPUT
         else 
