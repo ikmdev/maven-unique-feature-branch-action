@@ -28,8 +28,10 @@ runs:
       run: |
          if [ $IS_DEFAULT_BRANCH == 'true' ]; then
             echo "FEATURE_BRANCH_NAME=feature/$BRANCH_NAME" >> $GITHUB_OUTPUT
+            echo "BASE_BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
          else
             echo "FEATURE_BRANCH_NAME=$TRIGGER_BRANCH_NAME" >> $GITHUB_OUTPUT
+            ecoh "BASE_BRANCH_NAME=$(echo "$TRIGGER_BRANCH_NAME" | sed "s/feature///")" >> $GITHUB_OUTPUT
          fi
       env:
           IS_DEFAULT_BRANCH: ${{inputs.is_default_branch}}
@@ -79,7 +81,7 @@ runs:
           echo "Base version: $BASE_VERSION"
       
           # Create new version with '-feature-branch_name-SNAPSHOT'
-          NEW_VERSION="${BASE_VERSION}-${{ inputs.custom_branch_name }}-SNAPSHOT"
+          NEW_VERSION="${BASE_VERSION}-${{ steps.featureBranchOutput.outputs.BASE_BRANCH_NAME }}-SNAPSHOT"
           echo "New version: $NEW_VERSION"
       
           # Update the version in pom.xml
@@ -95,7 +97,7 @@ runs:
           echo "Current version: $CURRENT_VERSION"
       
           # Remove '-feature-branch_name' from the version
-          NEW_VERSION=$(echo "$CURRENT_VERSION" | sed "s/-${{ inputs.custom_branch_name }}//")
+          NEW_VERSION=$(echo "$CURRENT_VERSION" | sed "s/-${{ steps.featureBranchOutput.outputs.BASE_BRANCH_NAME }}//")
           echo "Reverted version: $NEW_VERSION"
       
           # Update the version in pom.xml
