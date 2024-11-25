@@ -1,5 +1,5 @@
 name: Maven Unique Feature Branch Action
-description: Utilized for feature branch workflow
+description: Utilized for feature branch workflows
 
 # Inputs
 inputs:
