@@ -49,7 +49,7 @@ jobs:
         id: getLatestTag
         run: |
             git fetch --tags
-            echo "TAG=$(git describe --tags `git rev-list --tags --max-count=1`)"
+            TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
             echo "TAG: " $TAG
 
             if [ $TAG == '' ]; then
