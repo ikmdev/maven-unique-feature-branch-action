@@ -58,7 +58,7 @@ jobs:
                 echo "LATEST_TAG=$(echo "$TAG" | sed "s/v//")" >> $GITHUB_OUTPUT
             fi
 
-            echo "LATEST_TAG: $LATEST_TAG"
+            echo "LATEST_TAG: ${LATEST_TAG}"
 
       - name: Split Tag String
         uses: xom9ikk/split@v1.1
