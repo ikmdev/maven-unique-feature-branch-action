@@ -52,7 +52,7 @@ jobs:
             echo "TAG=$(git describe --tags `git rev-list --tags --max-count=1`)"
             echo "TAG: " $TAG
 
-            if [$TAG == '' ]; then
+            if [ $TAG == '' ]; then
                 echo "LATEST_TAG=0.0.0" >> $GITHUB_OUTPUT
             else
                 echo "LATEST_TAG=$TAG" >> $GITHUB_OUTPUT
@@ -86,7 +86,9 @@ jobs:
 
       - name: "[${{inputs.release_type}}] Create & Push Tag -- ${{steps.incrementedTagVersion.outputs.NEW_RELEASE_TAG}}"
         run: |
+          git remote set-url origin https://git:${{secrets.IKMDEVOPS_PAT_TOKEN}}@github.com/${{github.repository}}.git
           git pull -p
+          git config user.name "ikmdevops"
           git tag -a v$NEW_RELEASE_TAG -m"Release Version $NEW_RELEASE_TAG"
           git push origin v$NEW_RELEASE_TAG
         env:
