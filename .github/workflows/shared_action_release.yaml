@@ -55,7 +55,7 @@ jobs:
             if [ $TAG == '' ]; then
                 echo "LATEST_TAG=0.0.0" >> $GITHUB_OUTPUT
             else
-                echo "LATEST_TAG=$TAG" >> $GITHUB_OUTPUT
+                echo "LATEST_TAG=$(echo "$TAG" | sed "s/v//")" >> $GITHUB_OUTPUT
             fi
 
             echo "LATEST_TAG: $LATEST_TAG"
