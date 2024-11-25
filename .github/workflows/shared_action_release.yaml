@@ -50,7 +50,7 @@ jobs:
         run: |
             git fetch --tags
             echo "LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_OUTPUT
-            echo $LATEST_TAG
+            echo "TAG: " $LATEST_TAG
         
 
 
