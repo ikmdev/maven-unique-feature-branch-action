@@ -74,9 +74,9 @@ jobs:
             if [ $RELEASE_TYPE == 'Major' ]; then
               echo "NEW_RELEASE_TAG=$(($MAJOR_STRING + 1)).0.0" >> $GITHUB_OUTPUT
             elif [ $RELEASE_TYPE == 'Minor' ]; then
-              echo "NEW_RELEASE_TAG=$MAJOR_STRING.$(($MINOR_STRING + 1)).0" >> $GITHUB_OUTPUT
+              echo "NEW_RELEASE_TAG=${MAJOR_STRING}.$(($MINOR_STRING + 1)).0" >> $GITHUB_OUTPUT
             else
-              echo "NEW_RELEASE_TAG=$MAJOR_STRING.$MINOR_STRING.$(($PATCH_STRING + 1))" >> $GITHUB_OUTPUT
+              echo "NEW_RELEASE_TAG=${MAJOR_STRING}.${MINOR_STRING}.$(($PATCH_STRING + 1))" >> $GITHUB_OUTPUT
             fi
         env:
             RELEASE_TYPE: ${{inputs.release_type}}
