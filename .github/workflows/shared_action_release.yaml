@@ -89,6 +89,7 @@ jobs:
           git remote set-url origin https://git:${{secrets.IKMDEVOPS_PAT_TOKEN}}@github.com/${{github.repository}}.git
           git pull -p
           git config user.name "ikmdevops"
+          git config user.email devops@ikm.dev
           git tag -a v$NEW_RELEASE_TAG -m"Release Version $NEW_RELEASE_TAG"
           git push origin v$NEW_RELEASE_TAG
         env:
